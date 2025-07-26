@@ -1,13 +1,13 @@
 package com.felipe.screenmatch.main;
 
 import com.felipe.screenmatch.model.SeasonData;
+import com.felipe.screenmatch.model.Serie;
 import com.felipe.screenmatch.model.SeriesData;
 import com.felipe.screenmatch.service.ApiConsumer;
 import com.felipe.screenmatch.service.DataConverter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -18,34 +18,50 @@ public class Main {
     private final String ADRESS = "http://www.omdbapi.com/?t=";
     private final String API_KEY = "&apikey=3a8927ac";
 
+    private List<SeriesData> seriesData = new ArrayList<>();
+
     public void displayMenu() {
-        var menu = """
-                1 - Buscar séries
-                2 - Buscar episódios
-                
-                0 - Sair
-                """;
+        var option = -1;
+        while (option != 0) {
+            try {
+                var menu = """
+                        1 - Buscar séries
+                        2 - Buscar episódios
+                        3 - Listar séries buscadas
+                        
+                        0 - Sair
+                        """;
 
-        System.out.println(menu);
-        var option = scanner.nextInt();
-        scanner.nextLine();
+                System.out.println(menu);
+                option = scanner.nextInt();
+                scanner.nextLine();
 
-        switch (option) {
-            case 1:
-                searchSerieWeb();
-                break;
-            case 2:
-                searchSerieEpisode();
-                break;
-            case 0:
-                System.out.println("Saindo...");
-                break;
-            default:
-                System.out.println("Opção inválida");
+                switch (option) {
+                    case 1:
+                        searchSerieWeb();
+                        break;
+                    case 2:
+                        searchSerieEpisode();
+                        break;
+                    case 3:
+                        listSearchedSeries();
+                        break;
+                    case 0:
+                        System.out.println("Saindo...");
+                        break;
+                    default:
+                        System.out.println("Opção inválida");
+                }
+
+            } catch (InputMismatchException e) {
+                System.out.println("\nNão consegui entender, digite um número válido:\n");
+                scanner.nextLine();
+            }
         }
     }
     private void searchSerieWeb() {
         SeriesData data = getSeriesData();
+        seriesData.add(data);
         System.out.println(data);
 
     }
@@ -68,5 +84,14 @@ public class Main {
             seasons.add(seasonData);
         }
         seasons.forEach(System.out::println);
+    }
+    private void listSearchedSeries() {
+        List<Serie> series = new ArrayList<>();
+        series = seriesData.stream()
+                        .map(d -> new Serie(d))
+                                .collect(Collectors.toList());
+        series.stream()
+                .sorted(Comparator.comparing(Serie::getGenre))
+                .forEach(System.out::println);
     }
 }
