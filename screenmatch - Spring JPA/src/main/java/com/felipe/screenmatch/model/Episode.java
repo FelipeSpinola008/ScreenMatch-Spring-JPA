@@ -1,25 +1,36 @@
 package com.felipe.screenmatch.model;
 
-import java.time.LocalDate;
-import java.time.Year;
-import java.time.format.DateTimeParseException;
-import java.util.List;
+import jakarta.persistence.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
+@Entity
+@Table(name = "Episodes")
 public class Episode {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private Integer season;
     private String title;
     private Integer episode;
     private Double rating;
     private LocalDate releaseDate;
 
+    @ManyToOne
+    private Serie serie;
+
+    public Episode(){}
+
     public Episode(Integer season, EpisodesData episodesData) {
         this.season = season;
         this.title = episodesData.title();
-        this.episode = episodesData.episode();
+        this.episode = episodesData.numero();
 
         try {
             this.rating = Double.valueOf(episodesData.rating());
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException | NullPointerException ex) {
             this.rating = 0.0;
         }
 
@@ -30,6 +41,14 @@ public class Episode {
         }
 
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Integer getSeason() {
@@ -72,11 +91,19 @@ public class Episode {
         this.releaseDate = releaseDate;
     }
 
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
+
     @Override
     public String toString() {
         return "season=" + season +
                 ", title='" + title + '\'' +
-                ", episode=" + episode +
+                ", numero=" + episode +
                 ", rating=" + rating +
                 ", releaseDate=" + releaseDate;
     }
