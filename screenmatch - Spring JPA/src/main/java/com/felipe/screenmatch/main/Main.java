@@ -3,8 +3,10 @@ package com.felipe.screenmatch.main;
 import com.felipe.screenmatch.model.SeasonData;
 import com.felipe.screenmatch.model.Serie;
 import com.felipe.screenmatch.model.SeriesData;
+import com.felipe.screenmatch.repository.SerieRepository;
 import com.felipe.screenmatch.service.ApiConsumer;
 import com.felipe.screenmatch.service.DataConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +21,13 @@ public class Main {
     private final String API_KEY = "&apikey=3a8927ac";
 
     private List<SeriesData> seriesData = new ArrayList<>();
+
+
+    private SerieRepository repository;
+
+    public Main(SerieRepository repository) {
+        this.repository = repository;
+    }
 
     public void displayMenu() {
         var option = -1;
@@ -61,7 +70,9 @@ public class Main {
     }
     private void searchSerieWeb() {
         SeriesData data = getSeriesData();
-        seriesData.add(data);
+        //seriesData.add(data);
+        Serie serie = new Serie(data);
+        repository.save(serie);
         System.out.println(data);
 
     }
@@ -86,10 +97,7 @@ public class Main {
         seasons.forEach(System.out::println);
     }
     private void listSearchedSeries() {
-        List<Serie> series = new ArrayList<>();
-        series = seriesData.stream()
-                        .map(d -> new Serie(d))
-                                .collect(Collectors.toList());
+        List<Serie> series =  repository.findAll();
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenre))
                 .forEach(System.out::println);
